@@ -1,51 +1,168 @@
+// ------------------
+// Helper functions
+// ------------------
 function escapeHTML(text) {
-    return text
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;");
+    return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
 function addMessage(messageText, senderType) {
-    // 1. Create a new <div> element called messageDiv to hold the message.
-    const messageDiv = document.createElement('div');
-    // 2. Add two CSS classes to messageDiv: 'message' and senderType ('user' or 'bot').
-    messageDiv.classList.add('message', senderType);
-    // 3. Replace newline characters in messageText with <br> and set as HTML content.
-    const safeText = escapeHTML(messageText).replace(/\n/g, "<br>");
-    messageDiv.innerHTML = safeText;
-    // 4. Get the container element with ID 'messages' and save as "messagesContainer".
-    const messagesContainer = document.getElementById('messages');
-    // 5. Add messageDiv to the messages container.
+    const messageDiv = document.createElement("div");
+    messageDiv.classList.add("message", senderType);
+    messageDiv.innerHTML = senderType === "user" ? escapeHTML(messageText).replace(/\n/g, "<br>") : messageText.replace(/\n/g, "<br>");
+    const messagesContainer = document.getElementById("messages");
     messagesContainer.appendChild(messageDiv);
-    // 6. Scroll to bottom:
     messagesContainer.scrollTop = messagesContainer.scrollHeight;
 }
 
-document.addEventListener("DOMContentLoaded", function () {
-    addMessage(
-        "Hello, I am your intelligent books recommendation chatbot \"01Books\".\nGive me a keyword!\nExample: Mathematics",
-        'bot'
-    );
+function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+}
+
+// ------------------
+// Mode toggle
+// ------------------
+let isMovieMode = localStorage.getItem("isMovieMode") === "true";
+const toggleInput = document.getElementById("toggle-mode");
+const modeLabel = document.getElementById("mode-label");
+toggleInput.checked = isMovieMode;
+modeLabel.textContent = isMovieMode ? "Movies/Series" : "Anime";
+document.body.classList.add(isMovieMode ? 'movie-mode' : 'anime-mode');
+
+toggleInput.addEventListener("change", () => {
+    isMovieMode = toggleInput.checked;
+    localStorage.setItem("isMovieMode", isMovieMode);
+    modeLabel.textContent = isMovieMode ? "Movies/Series" : "Anime";
+    document.body.classList.toggle("movie-mode", isMovieMode);
+    document.body.classList.toggle("anime-mode", !isMovieMode);
+
+    // Clear chat & show welcome message
+    document.getElementById("messages").innerHTML = "";
+    showWelcomeMessage();
 });
 
-document.getElementById("send-button").addEventListener("click", sendMessage);
-
-function sendMessage() {
-    const userInput = document.getElementById("user-input").value.trim();
-
-    if (userInput) {
-        // Call addMessage function to display the user's message
-        addMessage(userInput, 'user');
-        // Clear the input field by setting its value to an empty string
-        document.getElementById("user-input").value = '';
+// ------------------
+// Welcome message
+// ------------------
+function showWelcomeMessage() {
+    if (isMovieMode) {
+        addMessage(
+            "Hello! 👋 I'm your TV Shows & Movies recommendation chatbot!\n\n" +
+            "Give me a show or movie name!\n\n" +
+            "Example: Friends, Breaking Bad, Interstellar",
+            "bot"
+        );
+    } else {
+        addMessage(
+            "Hello! 👋 I'm your Anime recommendation chatbot 🤖🎌\n\n" +
+            "I help you discover amazing anime series using real data from MyAnimeList.\n\n" +
+            "Just type:\n• An anime title\n• Or a genre / keyword\n\nExamples:\nNaruto\nOne Piece\nAttack on Titan\nRomance\nAction",
+            "bot"
+        );
     }
 }
 
-const userInputField = document.getElementById("user-input");
-
-userInputField.addEventListener("keydown", function (event) {
-    if (event.key === "Enter") {
-        event.preventDefault();
-        sendMessage();
+// ------------------
+// Initial setup
+// ------------------
+document.addEventListener("DOMContentLoaded", () => {
+    // Stars
+    const starsContainer = document.querySelector(".stars");
+    const starCount = 200;
+    for (let i = 0; i < starCount; i++) {
+        const star = document.createElement("div");
+        star.style.position = "fixed"; // fixed για να γεμίζουν όλο το viewport
+        star.style.width = "2px";
+        star.style.height = "2px";
+        star.style.background = "white";
+        star.style.top = `${Math.random() * 100}vh`;
+        star.style.left = `${Math.random() * 100}vw`;
+        star.style.opacity = Math.random();
+        star.style.borderRadius = "50%";
+        star.style.boxShadow = "0 0 2px white";
+        starsContainer.appendChild(star);
     }
+
+    showWelcomeMessage();
 });
+
+// ------------------
+// Send message
+// ------------------
+document.getElementById("send-button").addEventListener("click", sendMessage);
+document.getElementById("user-input").addEventListener("keydown", e => {
+    if (e.key === "Enter") { e.preventDefault(); sendMessage(); }
+});
+
+function sendMessage() {
+    const userInput = document.getElementById("user-input").value.trim();
+    if (!userInput) return;
+    addMessage(userInput, "user");
+    document.getElementById("user-input").value = "";
+
+    if (isMovieMode) {
+        getMovieOrSeriesRecommendation(userInput).then(resp => addMessage(resp, "bot"));
+    } else {
+        getAnimeRecommendation(userInput).then(resp => addMessage(resp, "bot"));
+    }
+}
+
+// ------------------
+// Anime API (Jikan)
+// ------------------
+async function getAnimeRecommendation(query) {
+    try {
+        const url = `https://api.jikan.moe/v4/anime?q=${encodeURIComponent(query)}&limit=20`;
+        const response = await fetch(url);
+        const data = await response.json();
+        if (!data.data || data.data.length === 0) return `No anime found for "${query}".`;
+
+        const shuffled = shuffleArray(data.data);
+        const selected = shuffled.slice(0, 5);
+
+        let message = "🎌 Anime recommendations:<br><br>";
+        selected.forEach(anime => {
+            const title = anime.title || "Unknown title";
+            const year = anime.year || "Unknown year";
+            const score = anime.score || "No score";
+            const genres = anime.genres?.map(g => g.name).join(", ") || "Unknown genres";
+            const url = anime.url || "#"; // Jikan URL
+
+            message += `🍥 <strong><a href="${url}" target="_blank">${title}</a></strong> (${year})<br>`;
+            message += `⭐ Score: ${score}<br>🎭 Genres: ${genres}<br><br>`;
+        });
+        return message;
+    } catch (e) { console.error(e); return "Sorry, I couldn't fetch anime right now 😢"; }
+}
+
+// ------------------
+// Movies/Series API (TVmaze)
+// ------------------
+async function getMovieOrSeriesRecommendation(query) {
+    let message = "🎬 Movie/Series recommendations:<br><br>";
+
+    // 1️⃣ TVmaze (series)
+    const tvmazeResponse = await fetch(`https://api.tvmaze.com/search/shows?q=${encodeURIComponent(query)}`);
+    const tvData = await tvmazeResponse.json();
+    const tvResults = tvData.slice(0, 5); // πρώτα 5
+
+    tvResults.forEach(item => {
+        const show = item.show;
+        message += `📺 <strong><a href="${show.url}" target="_blank">${show.name}</a></strong> (${show.premiered?.split("-")[0] || "Unknown"})<br>Genres: ${show.genres.join(", ")}<br><br>`;
+    });
+
+    // 2️⃣ OMDb (movies)
+    const omdbResponse = await fetch(`http://www.omdbapi.com/?apikey=e6427b5b&s=${encodeURIComponent(query)}`);
+    const omdbData = await omdbResponse.json();
+
+    if (omdbData.Search) {
+        omdbData.Search.slice(0, 5).forEach(movie => {
+            message += `🎬 <strong><a href="https://www.imdb.com/title/${movie.imdbID}" target="_blank">${movie.Title}</a></strong> (${movie.Year})<br>Type: ${movie.Type}<br><br>`;
+        });
+    }
+
+    return message || `No movies or series found for "${query}".`;
+}

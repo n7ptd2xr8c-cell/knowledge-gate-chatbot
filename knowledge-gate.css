@@ -1,46 +1,167 @@
 body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: 'Poppins', sans-serif;
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh;
+  min-height: 100vh;
   margin: 0;
-  background-color: #111146;
+  background: linear-gradient(to bottom, #0b0b2b, #1b1b5f 40%, #090a0f);
+  overflow: hidden;
+  transition: background 0.5s;
 }
 
+/* Movie mode background */
+body.movie-mode {
+  background: linear-gradient(to bottom, #330000, #660000 40%, #110000);
+}
+
+/* Moon */
+.moon {
+  position: fixed;
+  /* fixed αντί για absolute */
+  top: 10%;
+  left: 10%;
+  /* πάνω αριστερά */
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, #ffffcc, #ffff99 70%);
+  box-shadow: 0 0 40px 15px rgba(255, 255, 200, 0.5);
+  transition: all 0.5s;
+}
+
+body.movie-mode .moon {
+  background: radial-gradient(circle at 30% 30%, #ffcccc, #aa0000 70%);
+  box-shadow: 0 0 40px 15px rgba(255, 100, 100, 0.5);
+}
+
+
+/* Stars */
+.stars {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  background: white;
+  animation: twinkle 5s infinite alternate;
+}
+
+@keyframes twinkle {
+  from {
+    opacity: 0.3;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+/* Toggle container (outside chatbox) */
+#toggle-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: rgba(0, 0, 0, 0.6);
+  padding: 10px 16px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: white;
+  font-weight: 600;
+  z-index: 100;
+}
+
+/* Toggle switch */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  height: 24px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  background-color: #ccc;
+  transition: 0.4s;
+  border-radius: 34px;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: 0.4s;
+  border-radius: 50%;
+}
+
+input:checked+.slider {
+  background-color: #ff5555;
+}
+
+input:checked+.slider:before {
+  transform: translateX(26px);
+}
+
+/* Chat container */
 #chatbot-container {
   width: 360px;
   max-width: 90%;
-  background-color: #111146;
   border-radius: 16px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
   overflow: hidden;
   display: flex;
   flex-direction: column;
   position: relative;
   z-index: 10;
+  transition: background-color 0.5s;
 }
 
-h1 {
-  color: #ffffff;
-  font-size: 22px;
-  text-align: center;
-  padding: 16px 0;
-  margin: 0;
+body.anime-mode #chatbot-container {
+  background-color: #111146;
+}
+
+body.movie-mode #chatbot-container {
+  background-color: #661111;
+}
+
+/* Header */
+#chat-header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 16px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  color: white;
 }
 
+/* Chatbox */
 #chatbox {
   display: flex;
   flex-direction: column;
   height: 500px;
   background-color: #ffffff;
+  overflow: hidden;
 }
 
 #messages {
   flex: 1;
   padding: 16px;
   overflow-y: auto;
+  overflow-x: hidden;
 }
 
 #input-area {
@@ -74,6 +195,7 @@ h1 {
   background-color: #0056b3;
 }
 
+/* Messages */
 .message {
   max-width: 80%;
   padding: 10px 14px;
@@ -82,122 +204,29 @@ h1 {
   font-size: 14px;
   line-height: 1.4;
   word-wrap: break-word;
-  display: flex;
+  overflow-wrap: break-word;
+  white-space: normal;
+  display: block;
+  transition: background-color 0.5s, color 0.5s;
 }
 
-.user {
-  align-self: flex-end;
+/* Colors per mode */
+body.anime-mode .user {
   background-color: #2727e4;
   color: #ffffff;
 }
 
-.bot {
-  align-self: flex-start;
+body.anime-mode .bot {
   background-color: #f1f0f0;
   color: #1f1f1f;
 }
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+body.movie-mode .user {
+  background-color: #cc4444;
+  color: #fff;
 }
 
-body {
-  min-height: 100vh;
-  background: linear-gradient(to bottom, #0b0b2b, #1b2735 70%, #090a0f);
-  overflow: hidden;
-  position: relative;
-}
-
-.stars {
-  width: 1px;
-  height: 1px;
-  position: absolute;
-  top: 0;
-  left: 0;
-  z-index: 0;
-  background: white;
-  box-shadow: 2vw 5vh 2px white, 10vw 8vh 2px white, 15vw 15vh 1px white,
-    22vw 22vh 1px white, 28vw 12vh 2px white, 32vw 32vh 1px white,
-    38vw 18vh 2px white, 42vw 35vh 1px white, 48vw 25vh 2px white,
-    53vw 42vh 1px white, 58vw 15vh 2px white, 63vw 38vh 1px white,
-    68vw 28vh 2px white, 73vw 45vh 1px white, 78vw 32vh 2px white,
-    83vw 48vh 1px white, 88vw 20vh 2px white, 93vw 52vh 1px white,
-    98vw 35vh 2px white, 5vw 60vh 1px white, 12vw 65vh 2px white,
-    18vw 72vh 1px white, 25vw 78vh 2px white, 30vw 85vh 1px white,
-    35vw 68vh 2px white, 40vw 82vh 1px white, 45vw 92vh 2px white,
-    50vw 75vh 1px white, 55vw 88vh 2px white, 60vw 95vh 1px white,
-    65vw 72vh 2px white, 70vw 85vh 1px white, 75vw 78vh 2px white,
-    80vw 92vh 1px white, 85vw 82vh 2px white, 90vw 88vh 1px white,
-    95vw 75vh 2px white;
-  animation: twinkle 8s infinite linear;
-}
-
-.shooting-star {
-  position: absolute;
-  z-index: 1;
-  width: 100px;
-  height: 2px;
-  background: linear-gradient(90deg, white, transparent);
-  animation: shoot 3s infinite ease-in;
-}
-
-.shooting-star:nth-child(1) {
-  top: 20%;
-  left: -100px;
-  animation-delay: 0s;
-}
-
-.shooting-star:nth-child(2) {
-  top: 35%;
-  left: -100px;
-  animation-delay: 1s;
-}
-
-.shooting-star:nth-child(3) {
-  top: 50%;
-  left: -100px;
-  animation-delay: 2s;
-}
-
-@keyframes twinkle {
-
-  0%,
-  100% {
-    opacity: 0.8;
-  }
-
-  50% {
-    opacity: 0.4;
-  }
-}
-
-@keyframes shoot {
-  0% {
-    transform: translateX(0) translateY(0) rotate(25deg);
-    opacity: 1;
-  }
-
-  100% {
-    transform: translateX(120vw) translateY(50vh) rotate(25deg);
-    opacity: 0;
-  }
-}
-
-/* Additional twinkling stars with different animation timing */
-.stars::after {
-  content: "";
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  background: white;
-  box-shadow: 8vw 12vh 2px white, 16vw 18vh 1px white, 24vw 25vh 2px white,
-    33vw 15vh 1px white, 41vw 28vh 2px white, 49vw 35vh 1px white,
-    57vw 22vh 2px white, 65vw 42vh 1px white, 73vw 28vh 2px white,
-    81vw 48vh 1px white, 89vw 32vh 2px white, 97vw 45vh 1px white,
-    3vw 68vh 2px white, 11vw 75vh 1px white, 19vw 82vh 2px white,
-    27vw 88vh 1px white, 35vw 72vh 2px white, 43vw 85vh 1px white,
-    51vw 92vh 2px white, 59vw 78vh 1px white;
-  animation: twinkle 6s infinite linear reverse;
+body.movie-mode .bot {
+  background-color: #ff8888;
+  color: #330000;
 }
