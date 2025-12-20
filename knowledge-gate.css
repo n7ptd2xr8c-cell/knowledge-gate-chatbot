@@ -4,7 +4,7 @@ body {
   overflow-x: hidden;
   overflow-y: auto;
   min-height: 100%;
-  background: #0b0b2b;
+  background: linear-gradient(to bottom, #0b0b2b, #1b1b5f 40%, #090a0f);
   width: 100%;
   height: 100%;
 }
@@ -282,7 +282,7 @@ body.movie-mode .bot {
 #app {
   width: 100%;
   min-height: 100svh;
-  background: linear-gradient(to bottom, #0b0b2b, #1b1b5f 40%, #090a0f);
+  background: transparent;
   position: relative;
   overflow: hidden;
   padding-top: 250px;

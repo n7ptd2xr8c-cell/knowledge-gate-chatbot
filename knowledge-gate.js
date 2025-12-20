@@ -162,7 +162,7 @@ async function getMovieOrSeriesRecommendation(query) {
     });
 
     // 2️⃣ OMDb (movies)
-    const omdbResponse = await fetch(`http://www.omdbapi.com/?apikey=e6427b5b&s=${encodeURIComponent(query)}`);
+    const omdbResponse = await fetch(`https://www.omdbapi.com/?apikey=e6427b5b&s=${encodeURIComponent(query)}`);
     const omdbData = await omdbResponse.json();
 
     if (omdbData.Search) {
