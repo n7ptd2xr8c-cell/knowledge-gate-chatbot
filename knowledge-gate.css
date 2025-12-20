@@ -1,22 +1,22 @@
 body {
   font-family: 'Poppins', sans-serif;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
   margin: 0;
-  background: linear-gradient(to bottom, #0b0b2b, #1b1b5f 40%, #090a0f);
-  overflow: hidden;
-  transition: background 0.5s;
+  overflow-x: hidden;
+  overflow-y: auto;
+  min-height: 100%;
+  background: #0b0b2b;
+  width: 100%;
+  height: 100%;
 }
 
-/* Movie mode background */
-body.movie-mode {
+
+body.movie-mode #app {
   background: linear-gradient(to bottom, #330000, #660000 40%, #110000);
 }
 
 /* Moon */
 .moon {
+  pointer-events: none;
   position: fixed;
   /* fixed αντί για absolute */
   top: 10%;
@@ -38,7 +38,10 @@ body.movie-mode .moon {
 
 /* Stars */
 .stars {
-  position: absolute;
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  z-index: 0;
   width: 1px;
   height: 1px;
   background: white;
@@ -119,6 +122,7 @@ input:checked+.slider:before {
 
 /* Chat container */
 #chatbot-container {
+  margin: 0 auto;
   width: 360px;
   max-width: 90%;
   border-radius: 16px;
@@ -152,16 +156,17 @@ body.movie-mode #chatbot-container {
 #chatbox {
   display: flex;
   flex-direction: column;
-  height: 500px;
-  background-color: #ffffff;
+  background-color: transparent;
   overflow: hidden;
 }
+
 
 #messages {
   flex: 1;
   padding: 16px;
   overflow-y: auto;
   overflow-x: hidden;
+  background: rgba(255, 255, 255, 0.95);
 }
 
 #input-area {
@@ -229,4 +234,170 @@ body.movie-mode .user {
 body.movie-mode .bot {
   background-color: #ff8888;
   color: #330000;
+}
+
+#password-screen {
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(circle, #050515, #000);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.password-box {
+  background: #111146;
+  padding: 30px;
+  border-radius: 16px;
+  box-shadow: 0 0 25px rgba(77, 166, 255, 0.4);
+  text-align: center;
+  width: 280px;
+}
+
+.password-box input {
+  width: 100%;
+  padding: 10px;
+  margin-top: 10px;
+  border-radius: 8px;
+  border: none;
+}
+
+.password-box button {
+  margin-top: 15px;
+  padding: 10px;
+  width: 100%;
+  border-radius: 8px;
+  border: none;
+  background: #4da6ff;
+  color: white;
+  cursor: pointer;
+}
+
+#password-error {
+  color: #ff6b6b;
+  margin-top: 10px;
+}
+
+#app {
+  width: 100%;
+  min-height: 100svh;
+  background: linear-gradient(to bottom, #0b0b2b, #1b1b5f 40%, #090a0f);
+  position: relative;
+  overflow: hidden;
+  padding-top: 250px;
+}
+
+@media (min-width: 769px) {
+  #chatbot-container {
+    animation: float 6s ease-in-out infinite;
+  }
+}
+
+@keyframes float {
+
+  0%,
+  100% {
+    transform: translateY(-20px);
+  }
+
+  50% {
+    transform: translateY(-28px);
+  }
+}
+
+
+/* 📱 MOBILE FIXES ONLY */
+@media (max-width: 768px) {
+
+  /* 🧠 Body */
+  body {
+    padding: 0;
+    overflow-x: hidden;
+  }
+
+  /* 💬 Chatbot container */
+  #chatbot-container {
+    width: 90%;
+    max-width: 360px;
+    height: calc(100svh - 140px);
+    /* ⬅️ γεμίζει την οθόνη */
+    margin: 120px auto 0;
+    display: flex;
+    flex-direction: column;
+    border-radius: 16px;
+    overflow: hidden;
+    position: relative;
+    z-index: 5;
+  }
+
+
+  #chatbox {
+    flex: 1;
+    /* ⬅️ παίρνει όλο το ύψος */
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  #messages {
+    flex: 1;
+    overflow-y: auto;
+  }
+
+  #input-area {
+    position: sticky;
+    bottom: 0;
+    background: #fff;
+    z-index: 10;
+  }
+
+  #app {
+    display: block;
+    padding-top: 10px;
+    /* ⬅️ ΣΤΑΜΑΤΑ το vertical centering ΜΟΝΟ στο mobile */
+  }
+
+  /* 🌙 Moon */
+  .moon {
+    width: 100px;
+    height: 100px;
+    top: 20px;
+    left: 15px;
+    right: auto;
+    z-index: 1;
+  }
+
+  /* ✨ Stars */
+  .stars {
+    width: 100vw;
+    height: 100vh;
+    top: 0;
+    left: 0;
+    z-index: 0;
+  }
+
+  .stars div {
+    width: 2px;
+    height: 2px;
+    opacity: 0.9;
+  }
+
+  /* 🔘 Toggle */
+  #toggle-container {
+    position: fixed;
+    top: 12px;
+    right: 12px;
+    z-index: 10;
+    background: rgba(0, 0, 0, 0.35);
+    backdrop-filter: blur(6px);
+    padding: 6px 10px;
+    border-radius: 20px;
+  }
+}
+
+#user-input,
+#password-input {
+  font-size: 16px;
+  /* iOS rule: κάτω από 16px = zoom */
 }

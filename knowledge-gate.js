@@ -8,11 +8,18 @@ function escapeHTML(text) {
 function addMessage(messageText, senderType) {
     const messageDiv = document.createElement("div");
     messageDiv.classList.add("message", senderType);
-    messageDiv.innerHTML = senderType === "user" ? escapeHTML(messageText).replace(/\n/g, "<br>") : messageText.replace(/\n/g, "<br>");
+
+    messageDiv.innerHTML =
+        senderType === "user"
+            ? escapeHTML(messageText).replace(/\n/g, "<br>")
+            : messageText.replace(/\n/g, "<br>");
+
     const messagesContainer = document.getElementById("messages");
     messagesContainer.appendChild(messageDiv);
-    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+    forceScrollToBottom(); // ✅ αντί για scrollTop
 }
+
 
 function shuffleArray(array) {
     for (let i = array.length - 1; i > 0; i--) {
@@ -166,3 +173,43 @@ async function getMovieOrSeriesRecommendation(query) {
 
     return message || `No movies or series found for "${query}".`;
 }
+
+const PASSWORD = "alfani";
+
+function checkPassword() {
+    const input = document.getElementById("password-input").value;
+    if (input === PASSWORD) {
+        document.getElementById("password-screen").style.display = "none";
+        document.getElementById("app").style.display = "block";
+    } else {
+        document.getElementById("password-error").innerText = "Wrong password";
+    }
+}
+
+// 🔑 Enter key support for password screen
+document.getElementById("password-input").addEventListener("keydown", function (event) {
+    if (event.key === "Enter") {
+        event.preventDefault();
+        checkPassword();
+    }
+});
+
+document.getElementById("password-input").addEventListener("input", () => {
+    document.getElementById("password-error").textContent = "";
+});
+
+function forceScrollToBottom() {
+    const messages = document.getElementById("messages");
+    if (!messages) return;
+
+    messages.scrollTop = messages.scrollHeight;
+
+    // 🔧 iOS Safari fix (reflow)
+    setTimeout(() => {
+        messages.scrollTop = messages.scrollHeight;
+    }, 100);
+}
+
+document.getElementById("user-input").addEventListener("focus", () => {
+    setTimeout(forceScrollToBottom, 300);
+});
