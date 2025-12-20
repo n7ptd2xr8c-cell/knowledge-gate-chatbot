@@ -1,51 +1,53 @@
+/* =========================
+   RESET
+========================= */
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100svh;
+}
+
 body {
   font-family: 'Poppins', sans-serif;
-  margin: 0;
   overflow-x: hidden;
   overflow-y: auto;
-  min-height: 100%;
+  -webkit-overflow-scrolling: touch;
   background: linear-gradient(to bottom, #0b0b2b, #1b1b5f 40%, #090a0f);
+}
+
+/* =========================
+   APP WRAPPER
+========================= */
+#app {
+  min-height: 100svh;
   width: 100%;
-  height: 100%;
+  position: relative;
+  overflow-x: hidden;
+  overflow-y: visible;
+
+  /* DESKTOP DEFAULT */
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
-
-body.movie-mode #app {
-  background: linear-gradient(to bottom, #330000, #660000 40%, #110000);
-}
-
-/* Moon */
-.moon {
-  pointer-events: none;
-  position: fixed;
-  /* fixed αντί για absolute */
-  top: 10%;
-  left: 10%;
-  /* πάνω αριστερά */
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  background: radial-gradient(circle at 30% 30%, #ffffcc, #ffff99 70%);
-  box-shadow: 0 0 40px 15px rgba(255, 255, 200, 0.5);
-  transition: all 0.5s;
-}
-
-body.movie-mode .moon {
-  background: radial-gradient(circle at 30% 30%, #ffcccc, #aa0000 70%);
-  box-shadow: 0 0 40px 15px rgba(255, 100, 100, 0.5);
-}
-
-
-/* Stars */
+/* =========================
+   BACKGROUND
+========================= */
 .stars {
-  pointer-events: none;
   position: fixed;
   inset: 0;
-  z-index: 0;
   width: 1px;
   height: 1px;
   background: white;
   animation: twinkle 5s infinite alternate;
+  pointer-events: none;
+  z-index: 0;
 }
 
 @keyframes twinkle {
@@ -58,11 +60,32 @@ body.movie-mode .moon {
   }
 }
 
-/* Toggle container (outside chatbox) */
+.moon {
+  position: fixed;
+  top: 10%;
+  left: 10%;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, #ffffcc, #ffff99 70%);
+  box-shadow: 0 0 40px 15px rgba(255, 255, 200, 0.5);
+  pointer-events: none;
+  z-index: 1;
+}
+
+body.movie-mode .moon {
+  background: radial-gradient(circle at 30% 30%, #ffcccc, #aa0000 70%);
+  box-shadow: 0 0 40px 15px rgba(255, 100, 100, 0.5);
+}
+
+/* =========================
+   TOGGLE
+========================= */
 #toggle-container {
   position: fixed;
   top: 20px;
   right: 20px;
+  z-index: 100;
   background: rgba(0, 0, 0, 0.6);
   padding: 10px 16px;
   border-radius: 12px;
@@ -70,230 +93,114 @@ body.movie-mode .moon {
   align-items: center;
   gap: 10px;
   color: white;
-  font-weight: 600;
-  z-index: 100;
 }
 
-/* Toggle switch */
-.switch {
-  position: relative;
-  display: inline-block;
-  width: 50px;
-  height: 24px;
-}
-
-.switch input {
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
-
-.slider {
-  position: absolute;
-  cursor: pointer;
-  background-color: #ccc;
-  transition: 0.4s;
-  border-radius: 34px;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-}
-
-.slider:before {
-  position: absolute;
-  content: "";
-  height: 18px;
-  width: 18px;
-  left: 3px;
-  bottom: 3px;
-  background-color: white;
-  transition: 0.4s;
-  border-radius: 50%;
-}
-
-input:checked+.slider {
-  background-color: #ff5555;
-}
-
-input:checked+.slider:before {
-  transform: translateX(26px);
-}
-
-/* Chat container */
+/* =========================
+   CHATBOT
+========================= */
 #chatbot-container {
-  margin: 0 auto;
   width: 360px;
   max-width: 90%;
   border-radius: 16px;
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  position: relative;
-  z-index: 10;
-  transition: background-color 0.5s;
-}
-
-body.anime-mode #chatbot-container {
-  background-color: #111146;
+  background: #111146;
+  z-index: 5;
 }
 
 body.movie-mode #chatbot-container {
-  background-color: #661111;
+  background: #661111;
 }
 
-/* Header */
+/* 🔒 DESKTOP CENTER FIX (ΤΟ ΚΡΙΣΙΜΟ) */
+@media (min-width: 769px) {
+  #chatbot-container {
+    margin: 0 auto;
+    animation: float 6s ease-in-out infinite;
+  }
+}
+
 #chat-header {
-  display: flex;
-  justify-content: center;
-  align-items: center;
   padding: 16px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  text-align: center;
   color: white;
 }
 
-/* Chatbox */
 #chatbox {
   display: flex;
   flex-direction: column;
-  background-color: transparent;
-  overflow: hidden;
+  flex: 1;
 }
-
 
 #messages {
   flex: 1;
   padding: 16px;
-  overflow-y: auto;
-  overflow-x: hidden;
   background: rgba(255, 255, 255, 0.95);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  /* ✅ iOS FIX */
 }
+
 
 #input-area {
   display: flex;
   padding: 10px;
-  background-color: #f9f9f9;
+  background: #f9f9f9;
   border-top: 1px solid #ccc;
 }
 
 #user-input {
   flex: 1;
+  font-size: 16px;
   padding: 10px 14px;
   border-radius: 8px;
-  outline: none;
-  font-size: 14px;
-  margin-right: 10px;
   border: 1px solid #ccc;
 }
 
 #send-button {
-  background-color: #007bff;
-  color: #ffffff;
+  margin-left: 10px;
   padding: 10px 16px;
   border-radius: 8px;
-  font-size: 14px;
-  cursor: pointer;
   border: none;
+  background: #007bff;
+  color: white;
+  cursor: pointer;
 }
 
-#send-button:hover {
-  background-color: #0056b3;
-}
-
-/* Messages */
+/* =========================
+   MESSAGES
+========================= */
 .message {
   max-width: 80%;
   padding: 10px 14px;
   margin: 6px 0;
   border-radius: 16px;
-  font-size: 14px;
-  line-height: 1.4;
-  word-wrap: break-word;
-  overflow-wrap: break-word;
-  white-space: normal;
-  display: block;
-  transition: background-color 0.5s, color 0.5s;
 }
 
-/* Colors per mode */
 body.anime-mode .user {
-  background-color: #2727e4;
-  color: #ffffff;
+  background: #2727e4;
+  color: white;
 }
 
 body.anime-mode .bot {
-  background-color: #f1f0f0;
-  color: #1f1f1f;
+  background: #f1f0f0;
+  color: #111;
 }
 
 body.movie-mode .user {
-  background-color: #cc4444;
-  color: #fff;
+  background: #cc4444;
+  color: white;
 }
 
 body.movie-mode .bot {
-  background-color: #ff8888;
+  background: #ff8888;
   color: #330000;
 }
 
-#password-screen {
-  position: fixed;
-  inset: 0;
-  background: radial-gradient(circle, #050515, #000);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 9999;
-}
-
-.password-box {
-  background: #111146;
-  padding: 30px;
-  border-radius: 16px;
-  box-shadow: 0 0 25px rgba(77, 166, 255, 0.4);
-  text-align: center;
-  width: 280px;
-}
-
-.password-box input {
-  width: 100%;
-  padding: 10px;
-  margin-top: 10px;
-  border-radius: 8px;
-  border: none;
-}
-
-.password-box button {
-  margin-top: 15px;
-  padding: 10px;
-  width: 100%;
-  border-radius: 8px;
-  border: none;
-  background: #4da6ff;
-  color: white;
-  cursor: pointer;
-}
-
-#password-error {
-  color: #ff6b6b;
-  margin-top: 10px;
-}
-
-#app {
-  width: 100%;
-  min-height: 100svh;
-  background: transparent;
-  position: relative;
-  overflow: hidden;
-  padding-top: 250px;
-}
-
-@media (min-width: 769px) {
-  #chatbot-container {
-    animation: float 6s ease-in-out infinite;
-  }
-}
-
+/* =========================
+   FLOAT ANIMATION
+========================= */
 @keyframes float {
 
   0%,
@@ -306,98 +213,57 @@ body.movie-mode .bot {
   }
 }
 
+/* =========================
+   PASSWORD SCREEN
+========================= */
+#password-screen {
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(circle, #050515, #000);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
 
-/* 📱 MOBILE FIXES ONLY */
+.password-box {
+  width: 90%;
+  max-width: 320px;
+  padding: 24px;
+  border-radius: 20px;
+  background: #111146;
+  text-align: center;
+  box-shadow: 0 0 25px rgba(77, 166, 255, 0.4);
+}
+
+/* =========================
+   MOBILE (ΚΛΕΙΔΩΜΕΝΟ – ΔΕΝ ΣΠΑΕΙ)
+========================= */
 @media (max-width: 768px) {
-
-  /* 🧠 Body */
-  body {
-    padding: 0;
-    overflow-x: hidden;
+  #app {
+    display: block;
+    padding-top: 140px;
   }
 
-  /* 💬 Chatbot container */
   #chatbot-container {
-    width: 90%;
-    max-width: 360px;
-    height: calc(100svh - 140px);
-    /* ⬅️ γεμίζει την οθόνη */
-    margin: 120px auto 0;
+    height: calc(100dvh - 160px);
     display: flex;
     flex-direction: column;
-    border-radius: 16px;
     overflow: hidden;
-    position: relative;
-    z-index: 5;
   }
-
 
   #chatbox {
     flex: 1;
-    /* ⬅️ παίρνει όλο το ύψος */
-    display: flex;
-    flex-direction: column;
     overflow: hidden;
   }
 
   #messages {
     flex: 1;
     overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
   }
 
   #input-area {
-    position: sticky;
-    bottom: 0;
-    background: #fff;
-    z-index: 10;
+    position: relative;
   }
-
-  #app {
-    display: block;
-    padding-top: 10px;
-    /* ⬅️ ΣΤΑΜΑΤΑ το vertical centering ΜΟΝΟ στο mobile */
-  }
-
-  /* 🌙 Moon */
-  .moon {
-    width: 100px;
-    height: 100px;
-    top: 20px;
-    left: 15px;
-    right: auto;
-    z-index: 1;
-  }
-
-  /* ✨ Stars */
-  .stars {
-    width: 100vw;
-    height: 100vh;
-    top: 0;
-    left: 0;
-    z-index: 0;
-  }
-
-  .stars div {
-    width: 2px;
-    height: 2px;
-    opacity: 0.9;
-  }
-
-  /* 🔘 Toggle */
-  #toggle-container {
-    position: fixed;
-    top: 12px;
-    right: 12px;
-    z-index: 10;
-    background: rgba(0, 0, 0, 0.35);
-    backdrop-filter: blur(6px);
-    padding: 6px 10px;
-    border-radius: 20px;
-  }
-}
-
-#user-input,
-#password-input {
-  font-size: 16px;
-  /* iOS rule: κάτω από 16px = zoom */
 }
