@@ -13,6 +13,7 @@ const CONFIG = {
     PASSWORD: "alfani",
     STORAGE_KEYS: {
         IS_MOVIE_MODE: "isMovieMode",
+        MESSAGES: "kg_messages_v1",
     },
     DEFAULTS: {
         STAR_COUNT: 200,
@@ -93,7 +94,39 @@ function addMessage(messageText, senderType) {
     }
 
     messagesContainer.appendChild(messageDiv);
+    try { saveMessagesToStorage(); } catch (e) { /* ignore */ }
     forceScrollToBottom();
+}
+
+/**
+ * Persist messages container HTML to localStorage
+ */
+function saveMessagesToStorage() {
+    try {
+        const messagesContainer = document.querySelector(CONFIG.SELECTORS.MESSAGES);
+        if (!messagesContainer) return;
+        const html = messagesContainer.innerHTML;
+        localStorage.setItem(CONFIG.STORAGE_KEYS.MESSAGES, html);
+    } catch (e) {
+        console.warn("Failed to save messages:", e);
+    }
+}
+
+/**
+ * Load persisted messages (if any) into the messages container
+ */
+function loadMessagesFromStorage() {
+    try {
+        const messagesContainer = document.querySelector(CONFIG.SELECTORS.MESSAGES);
+        if (!messagesContainer) return;
+        const html = localStorage.getItem(CONFIG.STORAGE_KEYS.MESSAGES);
+        if (html) {
+            messagesContainer.innerHTML = html;
+            forceScrollToBottom();
+        }
+    } catch (e) {
+        console.warn("Failed to load messages:", e);
+    }
 }
 
 // ============================================================================
@@ -129,6 +162,8 @@ class AppState {
         this.applyModeClass();
 
         toggleInput.addEventListener("change", () => this.handleModeChange());
+        // load messages persisted from previous session
+        loadMessagesFromStorage();
     }
 
     handleModeChange() {
@@ -152,11 +187,10 @@ class AppState {
         const messagesContainer = document.querySelector(CONFIG.SELECTORS.MESSAGES);
         if (messagesContainer) {
             messagesContainer.innerHTML = "";
+            saveMessagesToStorage();
         }
     }
 }
-
-let appState = new AppState();
 
 // ============================================================================
 // WELCOME MESSAGE SYSTEM
@@ -203,19 +237,8 @@ function initializeBackground() {
 
     for (let i = 0; i < CONFIG.DEFAULTS.STAR_COUNT; i++) {
         const star = document.createElement("div");
-        star.style.cssText = `
-            position: fixed;
-            width: 2px;
-            height: 2px;
-            background: white;
-            top: ${Math.random() * 100}vh;
-            left: ${Math.random() * 100}vw;
-            opacity: ${Math.random()};
-            border-radius: 50%;
-            box-shadow: 0 0 2px white;
-            z-index: 0;
-            pointer-events: none;
-        `;
+        const size = Math.random() * 2 + 0.6;
+        star.style.cssText = `position: fixed; width: ${size}px; height: ${size}px; background: rgba(255,255,255,${Math.random()}); top: ${Math.random() * 100}vh; left: ${Math.random() * 100}vw; border-radius: 50%; box-shadow: 0 0 ${Math.random() * 2}px rgba(255,255,255,0.9); pointer-events: none; z-index:0;`;
         starsContainer.appendChild(star);
     }
 }
@@ -257,6 +280,12 @@ class MessageHandler {
         addMessage(message, "user");
         this.userInput.value = "";
 
+        // disable send to prevent duplicate requests
+        if (this.sendButton) {
+            this.sendButton.disabled = true;
+            this.sendButton.setAttribute('aria-disabled', 'true');
+        }
+
         try {
             const response = appState.isMovieMode
                 ? await getMovieOrSeriesRecommendation(message)
@@ -264,15 +293,15 @@ class MessageHandler {
             addMessage(response, "bot");
         } catch (error) {
             console.error("Error sending message:", error);
-            addMessage(
-                "Sorry, something went wrong. Please try again.",
-                "bot"
-            );
+            addMessage("Sorry, something went wrong. Please try again.", "bot");
+        } finally {
+            if (this.sendButton) {
+                this.sendButton.disabled = false;
+                this.sendButton.setAttribute('aria-disabled', 'false');
+            }
         }
     }
 }
-
-let messageHandler = new MessageHandler();
 
 // ============================================================================
 // API INTEGRATION - ANIME (JIKAN API)
@@ -479,7 +508,10 @@ class PasswordManager {
             return;
         }
 
-        document.querySelector("button[onclick='checkPassword()']").addEventListener("click", () => this.checkPassword());
+        const submitBtn = document.querySelector('#password-submit');
+        if (submitBtn) {
+            submitBtn.addEventListener('click', () => this.checkPassword());
+        }
         this.passwordInput.addEventListener("keydown", (e) => {
             if (e.key === "Enter") {
                 e.preventDefault();
@@ -512,15 +544,27 @@ class PasswordManager {
 
     unlock() {
         if (this.passwordScreen) {
+            // visually hide the password screen
             this.passwordScreen.style.display = "none";
+            try { this.passwordScreen.setAttribute('aria-hidden', 'true'); } catch (e) { }
         }
         if (this.appContainer) {
+            // reveal app container
             this.appContainer.style.display = "flex";
+            try { this.appContainer.setAttribute('aria-hidden', 'false'); } catch (e) { }
         }
+        // hide any loader overlay
+        const loader = document.getElementById('loader-overlay');
+        if (loader) {
+            loader.style.display = 'none';
+            try { loader.setAttribute('aria-hidden', 'true'); } catch (e) { }
+        }
+
+        // perform post-unlock actions (welcome message, focus)
+        try { handlePostUnlock(); } catch (e) { /* ignore */ }
     }
 }
 
-let passwordManager = new PasswordManager();
 
 // ============================================================================
 // SCROLL MANAGEMENT
@@ -551,9 +595,24 @@ function forceScrollToBottom() {
  */
 document.addEventListener("DOMContentLoaded", () => {
     try {
+        // initialize application state and handlers after DOM is ready
+        window.appState = new AppState();
+        window.passwordManager = new PasswordManager();
+        window.messageHandler = new MessageHandler();
+
         initializeBackground();
-        showWelcomeMessage();
+        // hide loader overlay (shown while app loads)
+        const loader = document.getElementById('loader-overlay');
+        if (loader) {
+            loader.style.display = 'none';
+            try { loader.setAttribute('aria-hidden', 'true'); } catch (e) { }
+        }
     } catch (error) {
         console.error("Failed to initialize application:", error);
     }
 });
+
+// Called after user unlocks the app
+function handlePostUnlock() {
+    showWelcomeMessage();
+}

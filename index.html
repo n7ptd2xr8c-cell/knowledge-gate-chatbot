@@ -10,16 +10,24 @@
 </head>
 
 <body>
-  <div id="password-screen">
+  <div id="password-screen" aria-hidden="false">
     <div class="password-box">
       <h2>🔒 Private Access</h2>
-      <input type="password" id="password-input" placeholder="Enter password" />
-      <button onclick="checkPassword()">Enter</button>
-      <p id="password-error"></p>
+      <input type="password" id="password-input" placeholder="Enter password" aria-label="Password"
+        autocomplete="current-password" />
+      <button id="password-submit" type="button">Enter</button>
+      <p id="password-error" role="status" aria-live="polite"></p>
     </div>
   </div>
 
-  <div id="app" style="display:none;">
+  <div id="loader-overlay" aria-hidden="false">
+    <div class="loader">
+      <div class="spinner" aria-hidden="true"></div>
+      <div class="loader-text">Initializing Knowledge Gate…</div>
+    </div>
+  </div>
+
+  <div id="app" aria-hidden="true">
     <!-- Stars & moon -->
     <div class="stars"></div>
     <div class="moon"></div>
@@ -37,13 +45,16 @@
     <div id="chatbot-container">
       <div id="chat-header">
         <h1>Knowledge Gate</h1>
+        <div class="header-actions" aria-hidden="true">
+          <small class="version">v1.0</small>
+        </div>
       </div>
 
       <div id="chatbox">
-        <div id="messages"></div>
+        <div id="messages" role="log" aria-live="polite"></div>
         <div id="input-area">
-          <input type="text" id="user-input" placeholder="Type your message...">
-          <button id="send-button">Send</button>
+          <input type="text" id="user-input" placeholder="Type your message..." aria-label="Message input">
+          <button id="send-button" aria-label="Send message">Send</button>
         </div>
       </div>
     </div>

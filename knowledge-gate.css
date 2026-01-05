@@ -20,17 +20,26 @@ body {
 }
 
 body {
+  --bg-1: #0b0b2b;
+  --bg-2: #1b1b5f;
+  --accent: #4da6ff;
+  --muted: #a8b0c4;
   font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   overflow-x: hidden;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
-  background: linear-gradient(135deg, #0b0b2b 0%, #1b1b5f 40%, #090a0f 100%);
-  transition: background 0.3s ease;
+  background: linear-gradient(135deg, var(--bg-1) 0%, var(--bg-2) 40%, #090a0f 100%);
+  color: #e6eef8;
+  transition: background 0.3s ease, color 0.2s ease;
 }
 
 /* ============================================================================
    APP CONTAINER
    ============================================================================ */
+#app[aria-hidden="true"] {
+  display: none;
+}
+
 #app {
   min-height: 100svh;
   width: 100%;
@@ -49,12 +58,11 @@ body {
 .stars {
   position: fixed;
   inset: 0;
-  width: 1px;
-  height: 1px;
-  background: white;
-  animation: twinkle 5s infinite alternate;
   pointer-events: none;
   z-index: 0;
+  opacity: 0.85;
+  animation: twinkle 7s infinite alternate;
+  pointer-events: none;
 }
 
 @keyframes twinkle {
@@ -75,7 +83,7 @@ body {
   height: 80px;
   border-radius: 50%;
   background: radial-gradient(circle at 30% 30%, #ffffcc, #ffff99 70%);
-  box-shadow: 0 0 40px 15px rgba(255, 255, 200, 0.5);
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.6), 0 0 40px 15px rgba(255, 255, 200, 0.45);
   pointer-events: none;
   z-index: 1;
   transition: all 0.3s ease;
@@ -94,9 +102,9 @@ body.movie-mode .moon {
   top: 20px;
   right: 20px;
   z-index: 100;
-  background: rgba(0, 0, 0, 0.7);
-  padding: 12px 18px;
-  border-radius: 20px;
+  background: rgba(10, 15, 30, 0.6);
+  padding: 10px 16px;
+  border-radius: 14px;
   display: flex;
   align-items: center;
   gap: 12px;
@@ -104,7 +112,7 @@ body.movie-mode .moon {
   font-weight: 500;
   font-size: 14px;
   backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.06);
   transition: all 0.3s ease;
 }
 
@@ -133,7 +141,7 @@ body.movie-mode .moon {
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: #ccc;
+  background-color: rgba(255, 255, 255, 0.12);
   transition: 0.3s ease;
   border-radius: 24px;
 }
@@ -151,7 +159,7 @@ body.movie-mode .moon {
 }
 
 input:checked+.slider {
-  background-color: #007bff;
+  background-color: var(--accent);
 }
 
 input:checked+.slider:before {
@@ -170,7 +178,7 @@ input:checked+.slider:before {
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  background: #111146;
+  background: linear-gradient(180deg, rgba(17, 17, 70, 0.98), rgba(11, 11, 40, 0.98));
   z-index: 5;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
   transition: all 0.3s ease;
@@ -191,7 +199,7 @@ body.movie-mode #chatbot-container {
   padding: 20px 16px;
   text-align: center;
   color: white;
-  background: linear-gradient(135deg, rgba(77, 166, 255, 0.2), rgba(102, 166, 255, 0.1));
+  background: linear-gradient(90deg, rgba(77, 166, 255, 0.06), rgba(255, 255, 255, 0.02));
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
@@ -212,7 +220,7 @@ body.movie-mode #chatbot-container {
 #messages {
   flex: 1;
   padding: 16px;
-  background: rgba(255, 255, 255, 0.97);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(245, 245, 250, 0.98));
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   scroll-behavior: smooth;
@@ -242,8 +250,8 @@ body.movie-mode #chatbot-container {
 #input-area {
   display: flex;
   padding: 12px;
-  background: #f5f5f5;
-  border-top: 1px solid #e0e0e0;
+  background: linear-gradient(180deg, rgba(245, 245, 250, 0.95), rgba(235, 235, 240, 0.95));
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
   gap: 8px;
 }
 
@@ -272,7 +280,7 @@ body.movie-mode #chatbot-container {
   padding: 10px 20px;
   border-radius: 12px;
   border: none;
-  background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+  background: linear-gradient(135deg, var(--accent) 0%, #0063b8 100%);
   color: white;
   cursor: pointer;
   font-weight: 600;
@@ -346,6 +354,45 @@ body.movie-mode .bot {
   background: #ff8888;
   color: #330000;
   border-bottom-left-radius: 4px;
+}
+
+/* Loader overlay */
+#loader-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(180deg, rgba(2, 6, 23, 0.7), rgba(2, 6, 23, 0.85));
+  z-index: 9998;
+}
+
+.loader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  color: var(--muted);
+}
+
+.spinner {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: 6px solid rgba(255, 255, 255, 0.08);
+  border-top-color: var(--accent);
+  animation: spin 1s linear infinite;
+}
+
+.loader-text {
+  font-size: 14px;
+  color: var(--muted);
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* ============================================================================
